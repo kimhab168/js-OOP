@@ -114,6 +114,48 @@ class Library{
             })
         }
     }
+    returnBook(title,obj,count){
+        let found = false
+        this.books.forEach(element => {
+            if(element.title === title && !element.available){
+                element.available = true
+                found = true
+                const index = obj.findIndex(element=>element.title === title)
+                obj.splice(index, 1)
+                console.log("You returned:");
+                console.log("Title\t\tAUTHOR\t\tGenre\t\tAvailable");
+                console.log(`${element.title}\t\t${element.author}\t\t${element.genre}\t\t${element.available}`);
+                console.log()
+            }
+        });
+        if(!found){
+            console.log("The Book",title,"Not Found/Unavailable!");
+            return ;
+        }else{
+            return count--;
+        }
+    }
+    borrowBook(title,obj,count){
+        let found = false
+        this.books.forEach((element) => {
+            if(element.title === title && element.available){
+                element.available = false
+                found = true
+                count+=1
+                obj.push(element)
+                console.log("You borrowed:");
+                console.log("Title\t\tAUTHOR\t\tGenre\t\tAvailable");
+                console.log(`${element.title}\t\t${element.author}\t\t${element.genre}\t\t${element.available}`);
+                console.log()
+            }
+        });
+        if(!found){
+            console.log("The Book",title,"Not Found/Unavailable!");
+            return ;
+        }else{
+            return count++
+        }
+    }
 
 }
 
@@ -140,62 +182,20 @@ class User{
         if (library.books.length === 0) {
             console.log("No Book in Library", library.name);
         }
-        else if(this.count === this.limited){
-            console.log("Sorry you have reach brrowed limited",this.limited);
+        else if(this.count >= this.limited){
+            console.log("Sorry you have reach borrowed limited",this.limited);
         } 
-        else if(this.count !== this.limited){
-            let found = false;
-            for (let i = 0; i < library.books.length; i++) {
-                if (library.books[i].title === title) {
-                    if(library.books[i].available){
-                        found = true;
-                        library.books[i].available = false;
-                        this.borrowed_books.push(library.books[i])
-                        console.log("You borrowed:")
-                        console.log("Title\t\tAUTHOR\t\tGenre\t\tAvailable");
-                        console.log(`${library.books[i].title}\t\t${library.books[i].author}\t\t${library.books[i].genre}\t\t${library.books[i].available}`);
-                        this.count +=1
-                        break;
-                    }
-                    else{
-                        found = false
-                    }
-                    
-                }
-            }
-            if (!found) {
-                console.log(`Sorry The Book \"${title}\" Not Found/Unavailable!`);
-            }
+        else{
+            this.count = library.borrowBook(title,this.borrowed_books,this.count)
         }
     }
     returnBookLimited(library, title){
         
         if (this.borrowed_books.length === 0) {
             console.log("You haven't borrowed any books yet! From Library", library.name);
-        } else {
-            let found = false;
-            for (let i = 0; i < library.books.length; i++) {
-                if (library.books[i].title === title) {
-                        found = true;
-                        library.books[i].available = true;
-                        console.log("You Returned:")
-                        console.log("Title\t\tAUTHOR\t\tGenre\t\tAvailable");
-                        console.log(`${library.books[i].title}\t\t${library.books[i].author}\t\t${library.books[i].genre}\t\t${library.books[i].available}`);
-                        for (let k=0;k<this.borrowed_books.length;k++){
-                            if(title == this.borrowed_books[k].title){
-                                this.borrowed_books.splice(k,1)
-                            }
-                        }
-                        this.count-=1
-                        break;
-                }
-                else{
-                    found = false
-                }
-            }
-            if (!found) {
-                console.log(`No book Title: ${title} found!`);
-            }
+        } 
+        else {
+            this.count = library.returnBook(title,this.borrowed_books,this.count)
             
         }
     }
@@ -217,13 +217,23 @@ class Admin extends User{
 
 const lb1 = new Library("Hab Library")
 
-const book1 = new Book("Lion","Sophorn","5th",true)
+const book1 = new Book("Lion1","Sophorn","5th",true)
 const book2 = new Book("Lion2","kimhab","7th",true)
 const book3 = new Book("Lion3","sophol","8th",true)
+const book4 = new Book("Lion4","Sunteang","11th",true)
+const book5 = new Book("Lion5","chetra","12th",true)
+const book6 = new Book("Lion6","b hour","3th",true)
 lb1.addBookByObj(book1);
 lb1.addBookByObj(book2);
 lb1.addBookByObj(book3);
+lb1.addBookByObj(book4);
+lb1.addBookByObj(book5);
+lb1.addBookByObj(book6);
 
 const user1 = new User("Hab")
-user1.borrowBookLimited(lb1,"Lion")
+user1.borrowBookLimited(lb1,"Lion1")
+user1.borrowBookLimited(lb1,"Lion2")
+user1.borrowBookLimited(lb1,"Lion3")
+user1.returnBookLimited(lb1,"Lion1")
+user1.returnBookLimited(lb1,"Lion3")
 lb1.displayAvaBook()
